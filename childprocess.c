@@ -1,4 +1,4 @@
-// 2015270209_ÇÑÂùÈ£_childprocess
+// 2015270209_í•œì°¬í˜¸_childprocess
 #include<stdio.h>
 #include<Windows.h>
 #include<tchar.h>
@@ -7,20 +7,16 @@
 
 #define BUFSIZE 1024
 
-
-int pagetable[2][10] = { 0, };
-
-
 int _tmain(INT argc, TCHAR *argv[]) {
 	
 	int cpu_burst = 0, io_burst = 0, pid = 0, process_number = 0;;
 
-	//srand(time(NULL)); // ³­¼ö
+	//srand(time(NULL)); // ë‚œìˆ˜
 	
 
 	HANDLE hRead = (HANDLE)atoi(argv[1]);
 	_tprintf(_T("[Child Process]\n"));
-	/* pipeÀÇ ´Ù¸¥ ÇÑÂÊ ³¡À» ÀÌ¿ëÇÑ µ¥ÀÌÅÍ ¼ö½Å*/
+	/* pipeì˜ ë‹¤ë¥¸ í•œìª½ ëì„ ì´ìš©í•œ ë°ì´í„° ìˆ˜ì‹ */
 	PROCESS_INFORMATION pi;
 	TCHAR recvString[4096] = { 0, };
 	DWORD bytesRead;
@@ -42,7 +38,7 @@ int _tmain(INT argc, TCHAR *argv[]) {
 	DWORD bytesWritten;
 	char data[4096] = "yo";
 	printf("my send message is %s\n", data);
-	WriteFile(WritePipe, data, 4096, &bytesWritten, NULL);  // ÀÚ½Ä ÇÁ·Î¼¼½º¿¡°Ô °ª Àü´Ş
+	WriteFile(WritePipe, data, 4096, &bytesWritten, NULL);  // ìì‹ í”„ë¡œì„¸ìŠ¤ì—ê²Œ ê°’ ì „ë‹¬
 
 
 	
@@ -59,7 +55,7 @@ int _tmain(INT argc, TCHAR *argv[]) {
 	WriteFile(WritePipe, data1, 4096, &bytesWritten, NULL);
 	
 
-    // logical memory ¿ä±¸
+    // logical memory ìš”êµ¬
 
 	for (int i = 0; i < 10; i++) {
 
@@ -68,7 +64,7 @@ int _tmain(INT argc, TCHAR *argv[]) {
 	
 
 
-	// cpu burst¿Í io burst Àü´Ş ¹ŞÀ½ 
+	// cpu burstì™€ io burst ì „ë‹¬ ë°›ìŒ 
 	TCHAR recvString1[4096] = { 0, };
 	TCHAR recvString2[4096] = { 0, };
 	
@@ -95,7 +91,7 @@ int _tmain(INT argc, TCHAR *argv[]) {
 
 
 
-	// cpu burst ¹Ş±â round robin
+	// cpu burst ë°›ê¸° round robin
 	TCHAR cpu_burst1[4096] = { 0, };
 	/*
 	ReadFile(hRead, cpu_burst1, 4096, &bytesRead, NULL);
@@ -109,7 +105,7 @@ int _tmain(INT argc, TCHAR *argv[]) {
 
 	while (cpu_burst > 0) {
 		
-		//Ã³À½¿¡ Å¸ÀÓ Æ½ ¹ŞÀ» ½Ã 10 page ¿ä±¸
+		//ì²˜ìŒì— íƒ€ì„ í‹± ë°›ì„ ì‹œ 10 page ìš”êµ¬
 		
 		TCHAR cmdString[4096] = { 0, };
 		wsprintf(cmdString, _T("Hi! i'm P%d. I want 10 pages"), process_number);
@@ -131,11 +127,6 @@ int _tmain(INT argc, TCHAR *argv[]) {
 
 		count++;
 	}
-
-
-
-
-	
 
 
 	CloseHandle(hRead);
