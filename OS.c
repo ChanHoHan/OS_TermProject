@@ -1,4 +1,5 @@
-// 2015270209_ÇÑÂùÈ£_ROUND_ROBIN_±¸Çö
+// 2015270209_í•œì°¬í˜¸_ROUND_ROBIN_êµ¬í˜„
+// Memory Management êµ¬í˜„
 #define _CRT_SECURE_NO_WARNINGS
 #include<stdio.h>
 #include<Windows.h>
@@ -10,14 +11,14 @@
 #define BUFSIZE 1024
 
 
-int physical_memory[80][4] = { 0, }; // ÃÑ80ÇÁ·¹ÀÓ  ÇÑ ÇÁ·¹ÀÓ´ç 4byte·Î »ı°¢. 
-int physical_memory_process_and_LRU[80][2] = { 0, };  // ÇÇÁöÄÃ ¸Ş¸ğ¸®¿¡ ¾î¶² ÇÁ·Î¼¼½º°¡ ÀÖ°í, »ç¿ëÇÏÁö ¾ÊÀº ½Ã°£ ±â·Ï.  [80][0]Àº process¹øÈ£ [80][1]Àº ½Ã°£
+int physical_memory[80][4] = { 0, }; // ì´80í”„ë ˆì„  í•œ í”„ë ˆì„ë‹¹ 4byteë¡œ ìƒê°. 
+int physical_memory_process_and_LRU[80][2] = { 0, };  // í”¼ì§€ì»¬ ë©”ëª¨ë¦¬ì— ì–´ë–¤ í”„ë¡œì„¸ìŠ¤ê°€ ìˆê³ , ì‚¬ìš©í•˜ì§€ ì•Šì€ ì‹œê°„ ê¸°ë¡.  [80][0]ì€ processë²ˆí˜¸ [80][1]ì€ ì‹œê°„
 
 
 
 struct Logical {
-	int pagetable[11][2]; // ÆäÀÌÁö Å×ÀÌºí
-	int logical_memory[11][4];// ÃÑ 11 page   ÇÑ ÆäÀÌÁö´ç 4byte·Î »ı°¢.
+	int pagetable[11][2]; // í˜ì´ì§€ í…Œì´ë¸”
+	int logical_memory[11][4];// ì´ 11 page   í•œ í˜ì´ì§€ë‹¹ 4byteë¡œ ìƒê°.
 };
 
 
@@ -27,14 +28,14 @@ struct PCB {
 	int cpu_burst;
 	int io_burst;
 	int pid;
-	int p_number; // process ¹øÈ£ 
+	int p_number; // process ë²ˆí˜¸ 
 	struct Logical logical;
 };
 
 
 
 
-///////////// ready queue ±¸Çö ////////////
+///////////// ready queue êµ¬í˜„ ////////////
 int readyqueue[11] = { 0, };
 int front, rear;
 
@@ -69,14 +70,14 @@ int _tmain(int argc, TCHAR* argv[]) {
 	
 	memset(physical_memory_process_and_LRU, -1, sizeof(physical_memory_process_and_LRU));
 
-	srand(time(NULL)); // ³­¼ö
+	srand(time(NULL)); // ë‚œìˆ˜
 	int random = 0;
 
 
 	FILE *fp = fopen("memory_management_dump.txt", "w");
 
 	
-	//±¸Á¶Ã¼ Æ÷ÀÎÅÍ ¹è¿­ »ç¿ë
+	//êµ¬ì¡°ì²´ í¬ì¸í„° ë°°ì—´ ì‚¬ìš©
 	struct PCB *p[11];
 	for (int i = 0; i < sizeof(p) / sizeof(struct PCB *); i++) {
 		p[i] = malloc(sizeof(struct PCB));
@@ -95,7 +96,7 @@ int _tmain(int argc, TCHAR* argv[]) {
 
 
 
-	//ÀÌ¸§¾ø´Â ÆÄÀÌÇÁ
+	//ì´ë¦„ì—†ëŠ” íŒŒì´í”„
 	HANDLE hReadPipe = NULL, hWritePipe = NULL;
 	TCHAR recvString[100];
 	DWORD bytesWritten;
@@ -106,7 +107,7 @@ int _tmain(int argc, TCHAR* argv[]) {
 	//si.cb = sizeof(si);
 
 
-	//// 2Â÷ ÅÒ ¼öÁ¤ ////
+	//// 2ì°¨ í…€ ìˆ˜ì • ////
 	HANDLE YourRPipe = NULL;
 	HANDLE YourWPipe = NULL;
 
@@ -126,9 +127,9 @@ int _tmain(int argc, TCHAR* argv[]) {
 
 	init_readyqueue();
 
-	for (int i = 0; i < 10; i++) {  // ÀÚ½Ä ÇÁ·Î¼¼½º 10°³ »ı¼º
+	for (int i = 0; i < 10; i++) {  // ìì‹ í”„ë¡œì„¸ìŠ¤ 10ê°œ ìƒì„±
 
-		// 2Â÷ ÅÒÇÁ //
+		// 2ì°¨ í…€í”„ //
 		SECURITY_ATTRIBUTES saAttr;
 		saAttr.nLength = sizeof(SECURITY_ATTRIBUTES);
 		saAttr.bInheritHandle = TRUE;
@@ -136,13 +137,13 @@ int _tmain(int argc, TCHAR* argv[]) {
 		//
 
 
-		/* ³ªÀÇ pipe »ı¼º */
+		/* ë‚˜ì˜ pipe ìƒì„± */
 		if (!CreatePipe(&hReadPipe, &hWritePipe, &saAttr, 4096)) {
 			printf("create pipe error\n");
 			return -1;
 		}
 
-		//// 2Â÷ ÅÒÇÁ /////
+		//// 2ì°¨ í…€í”„ /////
 
 		if (!CreatePipe(&YourRPipe, &YourWPipe, &saAttr, 4096)) {
 			printf("create pipe error\n");
@@ -151,7 +152,7 @@ int _tmain(int argc, TCHAR* argv[]) {
 
 		SetHandleInformation(YourRPipe, HANDLE_FLAG_INHERIT, HANDLE_FLAG_INHERIT);
 
-		/* pipeÀÇ ´Ù¸¥ ÇÑÂÊ ³¡À» ÀÌ¿ëÇÑ µ¥ÀÌÅÍ ¼Û½Å*/
+		/* pipeì˜ ë‹¤ë¥¸ í•œìª½ ëì„ ì´ìš©í•œ ë°ì´í„° ì†¡ì‹ */
 		TCHAR cmdString[4096] = { 0, };
 		SetHandleInformation(hReadPipe, HANDLE_FLAG_INHERIT, HANDLE_FLAG_INHERIT);
 		wsprintf(cmdString, _T("%s %u %u"), _T("childprocess.exe"), hReadPipe, YourWPipe);
@@ -160,12 +161,12 @@ int _tmain(int argc, TCHAR* argv[]) {
 		CreateProcess(NULL, cmdString, NULL, NULL, TRUE, CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi);
 
 
-		//write ÇÏ´Â ºÎºĞ//
+		//write í•˜ëŠ” ë¶€ë¶„//
 		char data[4096] = "hi";
 		//_itoa(p[i]->cpu_burst, data, 10);
 
 		printf("string send: %s \n", data);
-		WriteFile(hWritePipe, data, 4096, &bytesWritten, NULL);  // ÀÚ½Ä ÇÁ·Î¼¼½º¿¡°Ô °ª Àü´Ş
+		WriteFile(hWritePipe, data, 4096, &bytesWritten, NULL);  // ìì‹ í”„ë¡œì„¸ìŠ¤ì—ê²Œ ê°’ ì „ë‹¬
 		printf("handle : %d\n", hReadPipe);
 
 		DWORD dwRead;
@@ -177,7 +178,7 @@ int _tmain(int argc, TCHAR* argv[]) {
 
 
 		char data1[4096] = "who are you";
-		WriteFile(hWritePipe, data1, 4096, &bytesWritten, NULL);  // ÀÚ½Ä ÇÁ·Î¼¼½º¿¡°Ô °ª Àü´Ş
+		WriteFile(hWritePipe, data1, 4096, &bytesWritten, NULL);  // ìì‹ í”„ë¡œì„¸ìŠ¤ì—ê²Œ ê°’ ì „ë‹¬
 
 		DWORD dwRead1;
 		TCHAR chBuf1[4096] = { 0, };
@@ -185,9 +186,9 @@ int _tmain(int argc, TCHAR* argv[]) {
 		ReadFile(YourRPipe, chBuf1, 4096, &dwRead1, NULL);
 		printf(" he said : %s\n", chBuf1);
 
-		readyqueue_put(i); // readyqueue¿¡ ÇÁ·Î¼¼½º ³Ö±â
+		readyqueue_put(i); // readyqueueì— í”„ë¡œì„¸ìŠ¤ ë„£ê¸°
 
-		memset(p[i]->logical.pagetable, 0, sizeof(p[i]->logical.pagetable));  // ºó ÃÊ±âÈ­ ÆäÀÌÁö Å×ÀÌºí ÇÒ´ç
+		memset(p[i]->logical.pagetable, 0, sizeof(p[i]->logical.pagetable));  // ë¹ˆ ì´ˆê¸°í™” í˜ì´ì§€ í…Œì´ë¸” í• ë‹¹
 		
 		p[i]->p_number = i;
 		p[i]->pid = pi.dwProcessId;
@@ -199,14 +200,14 @@ int _tmain(int argc, TCHAR* argv[]) {
 	
 
 
-	for(int i = 0 ; i < 10 ; i ++)  // cpu burst, io burst, pid Àü´Ş 
+	for(int i = 0 ; i < 10 ; i ++)  // cpu burst, io burst, pid ì „ë‹¬ 
 	{
 		char data1[4096] = { 0, };
 		sprintf(data1, "%d", p[i]->cpu_burst);
-		WriteFile(p[i]->PWhandle, data1, 4096, &bytesWritten, NULL);  // ÀÚ½Ä ÇÁ·Î¼¼½º¿¡°Ô cpu burst Àü´Ş
+		WriteFile(p[i]->PWhandle, data1, 4096, &bytesWritten, NULL);  // ìì‹ í”„ë¡œì„¸ìŠ¤ì—ê²Œ cpu burst ì „ë‹¬
 		char data2[4096] = { 0, };
 		sprintf(data2, "%d", p[i]->io_burst);
-		WriteFile(p[i]->PWhandle,data2, 4096, &bytesWritten, NULL);  // ÀÚ½Ä ÇÁ·Î¼¼½º¿¡°Ô io burst Àü´Ş
+		WriteFile(p[i]->PWhandle,data2, 4096, &bytesWritten, NULL);  // ìì‹ í”„ë¡œì„¸ìŠ¤ì—ê²Œ io burst ì „ë‹¬
 		char data3[4096] = { 0, };
 		sprintf(data3, "%d", p[i]->pid);
 		WriteFile(p[i]->PWhandle, data3, 4096, &bytesWritten, NULL);
@@ -220,7 +221,7 @@ int _tmain(int argc, TCHAR* argv[]) {
 
 
 	// round robin //
-	//scheduler 1Â÷ ÅÒÇÁ
+	//scheduler 1ì°¨ í…€í”„
 	int time_quantum = 3;
 	int count_time = 0;
 	int time_save = 0;
@@ -235,11 +236,11 @@ int _tmain(int argc, TCHAR* argv[]) {
 		printf("---------------round %d----------------\n", round);
 		fprintf(fp, "---------------round %d----------------\n", round);
 
-		///////////////////////////////////////////¿©±â¼­ºÎÅÍ running //////////////////////////////////////////
-		i = readyqueue_get();  // ready queue¿¡¼­ ¸Ç Ã³À½ ³ª¿À´Â ÇÁ·Î¼¼½º
+		///////////////////////////////////////////ì—¬ê¸°ì„œë¶€í„° running //////////////////////////////////////////
+		i = readyqueue_get();  // ready queueì—ì„œ ë§¨ ì²˜ìŒ ë‚˜ì˜¤ëŠ” í”„ë¡œì„¸ìŠ¤
 
 		
-		//ÀÚ½ÄÀ¸·ÎºÎÅÍ 10ÆäÀÌÁö ¿ä±¸ ¸Ş½ÃÁö ¹Ş±â
+		//ìì‹ìœ¼ë¡œë¶€í„° 10í˜ì´ì§€ ìš”êµ¬ ë©”ì‹œì§€ ë°›ê¸°
 		
 		memset(chBuf2, 0, sizeof(chBuf2));
 		if (p[i]->cpu_burst > 0) {
@@ -252,8 +253,8 @@ int _tmain(int argc, TCHAR* argv[]) {
 		memset(chBuf2, 0, sizeof(chBuf2));
 		ReadFile(p[i]->PRhandle, chBuf2, 4096, &dwRead1, NULL);
 		int demand_from_child = atoi(chBuf2);
-		printf("ÀÚ½Ä ÇÁ·Î¼¼½º P%d·ÎºÎÅÍ %d ÀÇ ÆäÀÌÁö ¿ä±¸¸¦ ¹Ş¾Ò½À´Ï´Ù.\n", i, demand_from_child);
-		fprintf(fp, "ÀÚ½Ä ÇÁ·Î¼¼½º P%d·ÎºÎÅÍ %d ÀÇ ÆäÀÌÁö ¿ä±¸¸¦ ¹Ş¾Ò½À´Ï´Ù.\n", i, demand_from_child);
+		printf("ìì‹ í”„ë¡œì„¸ìŠ¤ P%dë¡œë¶€í„° %d ì˜ í˜ì´ì§€ ìš”êµ¬ë¥¼ ë°›ì•˜ìŠµë‹ˆë‹¤.\n", i, demand_from_child);
+		fprintf(fp, "ìì‹ í”„ë¡œì„¸ìŠ¤ P%dë¡œë¶€í„° %d ì˜ í˜ì´ì§€ ìš”êµ¬ë¥¼ ë°›ì•˜ìŠµë‹ˆë‹¤.\n", i, demand_from_child);
 
 		//logical memory   
 		randomx = rand() % 10;
@@ -276,82 +277,82 @@ int _tmain(int argc, TCHAR* argv[]) {
 		}
 		
 		
-		/////////////¿©±â¼­ºÎÅÍ ¸Ş¸ğ¸® ÇÒ´ç/////////////////
+		/////////////ì—¬ê¸°ì„œë¶€í„° ë©”ëª¨ë¦¬ í• ë‹¹/////////////////
 
-		// 10 page ÇÒ´ç. ÆäÀÌÁö Å×ÀÌºí È®ÀÎ ÈÄ 
-		//random = rand() % 80;  // 0~80 ³­¼ö »ı¼º
+		// 10 page í• ë‹¹. í˜ì´ì§€ í…Œì´ë¸” í™•ì¸ í›„ 
+		//random = rand() % 80;  // 0~80 ë‚œìˆ˜ ìƒì„±
 		int cnt = 0; // for page table
-		int memcount = 0;  // 10ÆäÀÌÁö¸¦ ¸Ş¸ğ¸®¿¡ ¿Ã¸®±â À§ÇÑ º¯¼ö
+		int memcount = 0;  // 10í˜ì´ì§€ë¥¼ ë©”ëª¨ë¦¬ì— ì˜¬ë¦¬ê¸° ìœ„í•œ ë³€ìˆ˜
 		while (cnt < 11) {
-			if (randomx == cnt) {  // ·ÎÁöÄÃ ¸Ş¸ğ¸®¸¦ ¸¸µé¶§ »ı¼ºÇÑ ³­¼ö¿Í º¯¼ö memcount°¡ °°À¸¸é pagetable Áõ°¡
+			if (randomx == cnt) {  // ë¡œì§€ì»¬ ë©”ëª¨ë¦¬ë¥¼ ë§Œë“¤ë•Œ ìƒì„±í•œ ë‚œìˆ˜ì™€ ë³€ìˆ˜ memcountê°€ ê°™ìœ¼ë©´ pagetable ì¦ê°€
 				cnt++;
 				continue;
 			}
-			random = rand() % 80;  // 0~80 ³­¼ö »ı¼º
+			random = rand() % 80;  // 0~80 ë‚œìˆ˜ ìƒì„±
 
 
-			if (p[i]->logical.pagetable[cnt][1] == 0) {  // valid bit 0 ÀÏ¶§
-				if (physical_memory[random][0] == 0) { // ÇÇÁöÄÃ ¸Ş¸ğ¸® ºñ¾îÀÖÀ¸¸é
+			if (p[i]->logical.pagetable[cnt][1] == 0) {  // valid bit 0 ì¼ë•Œ
+				if (physical_memory[random][0] == 0) { // í”¼ì§€ì»¬ ë©”ëª¨ë¦¬ ë¹„ì–´ìˆìœ¼ë©´
 					for (int k = 0; k < 4; k++) {
-						physical_memory[random][k] = p[i]->logical.logical_memory[memcount][k];  // ÇÇÁöÄÃ ¸Ş¸ğ¸®¿¡ ·ÎÁöÄÃ ¸Ş¸ğ¸® ¿Ã¶ó°¨
+						physical_memory[random][k] = p[i]->logical.logical_memory[memcount][k];  // í”¼ì§€ì»¬ ë©”ëª¨ë¦¬ì— ë¡œì§€ì»¬ ë©”ëª¨ë¦¬ ì˜¬ë¼ê°
 
 					}
-					p[i]->logical.pagetable[cnt][1] = 1;  // page table valid bit 1·Î ¹Ù²Ù±â
-					p[i]->logical.pagetable[cnt][0] = random;  // page table ¸ÅÇÎµÇ´Â ÁÖ¼Ò ÀúÀå
-					physical_memory_process_and_LRU[random][0] = i;  // ¾î¶² ÇÁ·Î¼¼½º°¡ ÇÇÁöÄÃ ¸Ş¸ğ¸® ÇÁ·¹ÀÓ¿¡ ¿Ã¶ó¿Ô´ÂÁö ±â·Ï.
+					p[i]->logical.pagetable[cnt][1] = 1;  // page table valid bit 1ë¡œ ë°”ê¾¸ê¸°
+					p[i]->logical.pagetable[cnt][0] = random;  // page table ë§¤í•‘ë˜ëŠ” ì£¼ì†Œ ì €ì¥
+					physical_memory_process_and_LRU[random][0] = i;  // ì–´ë–¤ í”„ë¡œì„¸ìŠ¤ê°€ í”¼ì§€ì»¬ ë©”ëª¨ë¦¬ í”„ë ˆì„ì— ì˜¬ë¼ì™”ëŠ”ì§€ ê¸°ë¡.
 					physical_memory_process_and_LRU[random][1] = 1;
 
 				}
-				else { // ºñ¾îÀÖÁö ¾ÊÀº °æ¿ì¸¦ À§ÇÔ
+				else { // ë¹„ì–´ìˆì§€ ì•Šì€ ê²½ìš°ë¥¼ ìœ„í•¨
 					int check = 0;
 					
 					
 					for (int k = 0; k < 80; k++) {
-						if (physical_memory[k][0] == 0) { // ÇÇÁöÄÃ ¸Ş¸ğ¸® ºñ¾îÀÖÀ¸¸é 
+						if (physical_memory[k][0] == 0) { // í”¼ì§€ì»¬ ë©”ëª¨ë¦¬ ë¹„ì–´ìˆìœ¼ë©´ 
 							for (int x = 0; x < 4; x++) {
-								physical_memory[k][x] = p[i]->logical.logical_memory[memcount][x];  // ÇÇÁöÄÃ ¸Ş¸ğ¸®¿¡ ·ÎÁöÄÃ ¸Ş¸ğ¸® ¿Ã¶ó°¨
+								physical_memory[k][x] = p[i]->logical.logical_memory[memcount][x];  // í”¼ì§€ì»¬ ë©”ëª¨ë¦¬ì— ë¡œì§€ì»¬ ë©”ëª¨ë¦¬ ì˜¬ë¼ê°
 
 							}
 							p[i]->logical.pagetable[cnt][1] = 1;
 							p[i]->logical.pagetable[cnt][0] = k;
-							physical_memory_process_and_LRU[k][0] = i;  // ¾î¶² ÇÁ·Î¼¼½º°¡ ÇÇÁöÄÃ ¸Ş¸ğ¸® ÇÁ·¹ÀÓ¿¡ ¿Ã¶ó¿Ô´ÂÁö ±â·Ï.
+							physical_memory_process_and_LRU[k][0] = i;  // ì–´ë–¤ í”„ë¡œì„¸ìŠ¤ê°€ í”¼ì§€ì»¬ ë©”ëª¨ë¦¬ í”„ë ˆì„ì— ì˜¬ë¼ì™”ëŠ”ì§€ ê¸°ë¡.
 							physical_memory_process_and_LRU[k][1] = 1;
 							check = 1;
 							break;
 						}
 					}
-					if (check == 0) {// ºñ¾î ÀÖÁö ¾Ê´Ù¸é PAGE REPLACEMENT
-						int frame_number = 0; // ÇÁ·¹ÀÓ ³Ñ¹ö
-						int tmp = 0;  // °¡Àå ¿À·¡Àü¿¡ »ç¿ëµÈ ÇÁ·¹ÀÓ Ã£±âÀ§ÇÑ º¯¼ö
+					if (check == 0) {// ë¹„ì–´ ìˆì§€ ì•Šë‹¤ë©´ PAGE REPLACEMENT
+						int frame_number = 0; // í”„ë ˆì„ ë„˜ë²„
+						int tmp = 0;  // ê°€ì¥ ì˜¤ë˜ì „ì— ì‚¬ìš©ëœ í”„ë ˆì„ ì°¾ê¸°ìœ„í•œ ë³€ìˆ˜
 						for (int k = 0; k < 80; k++) {
-							if (tmp < physical_memory_process_and_LRU[k][1] && i!=physical_memory_process_and_LRU[k][0]) {  // º»ÀÎÀÌ replace µÇ¸é ¾ÈµÇ¹Ç·Î
+							if (tmp < physical_memory_process_and_LRU[k][1] && i!=physical_memory_process_and_LRU[k][0]) {  // ë³¸ì¸ì´ replace ë˜ë©´ ì•ˆë˜ë¯€ë¡œ
 								frame_number = k;
 								tmp = physical_memory_process_and_LRU[k][1];
 							}
 						}
 
-						printf("P%dÀÇ ÇÁ·¹ÀÓ³Ñ¹ö %d°¡ °¡Àå ¿À·¡µÅ¼­ replace µÊ\n", physical_memory_process_and_LRU[frame_number][0], frame_number);
-						fprintf(fp,"P%dÀÇ ÇÁ·¹ÀÓ³Ñ¹ö %d°¡ °¡Àå ¿À·¡µÅ¼­ replace µÊ\n", physical_memory_process_and_LRU[frame_number][0], frame_number);
+						printf("P%dì˜ í”„ë ˆì„ë„˜ë²„ %dê°€ ê°€ì¥ ì˜¤ë˜ë¼ì„œ replace ë¨\n", physical_memory_process_and_LRU[frame_number][0], frame_number);
+						fprintf(fp,"P%dì˜ í”„ë ˆì„ë„˜ë²„ %dê°€ ê°€ì¥ ì˜¤ë˜ë¼ì„œ replace ë¨\n", physical_memory_process_and_LRU[frame_number][0], frame_number);
 
 						int finding_index = 0;
-						for (int k = 0; k < 11; k++) // page tableÀÇ valid ºñÆ®¸¦ ¹Ù²Ù±â À§ÇÔ
+						for (int k = 0; k < 11; k++) // page tableì˜ valid ë¹„íŠ¸ë¥¼ ë°”ê¾¸ê¸° ìœ„í•¨
 						{
 							if (p[physical_memory_process_and_LRU[frame_number][0]]->logical.pagetable[k][0] == frame_number) {
 								finding_index = k;
 								break;
 							}
 						}
-						p[physical_memory_process_and_LRU[frame_number][0]]->logical.pagetable[finding_index][1] = 0; // valid bit 0À¸·Î ¹Ù²Ù±â
+						p[physical_memory_process_and_LRU[frame_number][0]]->logical.pagetable[finding_index][1] = 0; // valid bit 0ìœ¼ë¡œ ë°”ê¾¸ê¸°
 
 
 						p[i]->logical.pagetable[cnt][1] = 1;
 						p[i]->logical.pagetable[cnt][0] = frame_number;
-						physical_memory_process_and_LRU[frame_number][0] = i;  // ¾î¶² ÇÁ·Î¼¼½º°¡ ÇÇÁöÄÃ ¸Ş¸ğ¸® ÇÁ·¹ÀÓ¿¡ ¿Ã¶ó¿Ô´ÂÁö ±â·Ï.
+						physical_memory_process_and_LRU[frame_number][0] = i;  // ì–´ë–¤ í”„ë¡œì„¸ìŠ¤ê°€ í”¼ì§€ì»¬ ë©”ëª¨ë¦¬ í”„ë ˆì„ì— ì˜¬ë¼ì™”ëŠ”ì§€ ê¸°ë¡.
 						physical_memory_process_and_LRU[frame_number][1] = 1;
 
 
 						for (int k = 0; k < 4; k++) {
-							physical_memory[frame_number][k] = p[i]->logical.logical_memory[memcount][k];  // ÇÇÁöÄÃ ¸Ş¸ğ¸®¿¡ ·ÎÁöÄÃ ¸Ş¸ğ¸® ¿Ã¶ó°¨
+							physical_memory[frame_number][k] = p[i]->logical.logical_memory[memcount][k];  // í”¼ì§€ì»¬ ë©”ëª¨ë¦¬ì— ë¡œì§€ì»¬ ë©”ëª¨ë¦¬ ì˜¬ë¼ê°
 
 						}
 
@@ -366,7 +367,7 @@ int _tmain(int argc, TCHAR* argv[]) {
 			cnt++;
 		}
 
-		for (int k = 0; k < 80; k++) {  //¿À·¡µÈ ÇÁ·¹ÀÓ ±¸ÇÏ±â À§ÇÑ ÄÚµå
+		for (int k = 0; k < 80; k++) {  //ì˜¤ë˜ëœ í”„ë ˆì„ êµ¬í•˜ê¸° ìœ„í•œ ì½”ë“œ
 			if (physical_memory_process_and_LRU[k][1] != 0) {
 				physical_memory_process_and_LRU[k][1] += 1;
 			}
@@ -375,12 +376,12 @@ int _tmain(int argc, TCHAR* argv[]) {
 
 
 
-		/////////////¿©±â±îÁö ¸Ş¸ğ¸® ÇÒ´ç/////////////////
+		/////////////ì—¬ê¸°ê¹Œì§€ ë©”ëª¨ë¦¬ í• ë‹¹/////////////////
 
 
 		
 
-		if (p[i]->cpu_burst > time_quantum) { // time_quantumº¸´Ù cpu_burst°¡ ´õ Å©¸é
+		if (p[i]->cpu_burst > time_quantum) { // time_quantumë³´ë‹¤ cpu_burstê°€ ë” í¬ë©´
 			p[i]->cpu_burst -= time_quantum;
 			time_save += time_quantum;
 			count_time = time_quantum;
@@ -390,10 +391,10 @@ int _tmain(int argc, TCHAR* argv[]) {
 			count_time = p[i]->cpu_burst;
 			p[i]->cpu_burst = 0;
 		}
-		printf("ÀÌ¹ø ¶ó¿îµåÀÇ running queue¿¡¼­ pid : %dÀÎ P%dÀÇ cpu burst %d ¼Ò¸ğ\n", p[i]->pid, i, count_time);
-		printf("P%dÀÇ ³²Àº cpu burst´Â %d \n", i, p[i]->cpu_burst);
-		fprintf(fp, "ÀÌ¹ø ¶ó¿îµå¿¡¼­ pid : %dÀÎ P%dÀÇ cpuburst %d ¼Ò¸ğ\n", p[i]->pid, i, count_time);
-		fprintf(fp, "P%dÀÇ ³²Àº cpu burst´Â %d \n", i, p[i]->cpu_burst);
+		printf("ì´ë²ˆ ë¼ìš´ë“œì˜ running queueì—ì„œ pid : %dì¸ P%dì˜ cpu burst %d ì†Œëª¨\n", p[i]->pid, i, count_time);
+		printf("P%dì˜ ë‚¨ì€ cpu burstëŠ” %d \n", i, p[i]->cpu_burst);
+		fprintf(fp, "ì´ë²ˆ ë¼ìš´ë“œì—ì„œ pid : %dì¸ P%dì˜ cpuburst %d ì†Œëª¨\n", p[i]->pid, i, count_time);
+		fprintf(fp, "P%dì˜ ë‚¨ì€ cpu burstëŠ” %d \n", i, p[i]->cpu_burst);
 
 		printf("ready queue : ");
 		fprintf(fp,"ready queue : ");
@@ -421,7 +422,7 @@ int _tmain(int argc, TCHAR* argv[]) {
 			readyqueue_put(i);
 		}
 
-		//ÀÚ½Ä ÇÁ·Î¼¼½º¿¡°Ô ³Ñ°ÜÁÖ±â
+		//ìì‹ í”„ë¡œì„¸ìŠ¤ì—ê²Œ ë„˜ê²¨ì£¼ê¸°
 		char ss[30] = "";
 		_itoa(p[i]->cpu_burst, ss, 10);
 		WriteFile(p[i]->PWhandle, ss, 4096, &bytesWritten, NULL);
@@ -434,10 +435,10 @@ int _tmain(int argc, TCHAR* argv[]) {
 		
 		
 		
-		// VA ¶ç¿ì±â
-		printf("----P%dÀÇ VA ---- \n", i);
+		// VA ë„ìš°ê¸°
+		printf("----P%dì˜ VA ---- \n", i);
 		printf("               Virtual Address       \n");
-		fprintf(fp,"----P%dÀÇ VA ---- \n", i);
+		fprintf(fp,"----P%dì˜ VA ---- \n", i);
 		fprintf(fp,"               Virtual Address       \n");
 		for (int k = 0; k < 10; k++) {
 			printf("page %2d      |  ", k);
@@ -455,9 +456,9 @@ int _tmain(int argc, TCHAR* argv[]) {
 
 
 		printf("\n");
-		printf("-----ÇöÀç physical memory------ \n");
+		printf("-----í˜„ì¬ physical memory------ \n");
 		fprintf(fp,"\n");
-		fprintf(fp,"-----ÇöÀç physical memory------ \n");
+		fprintf(fp,"-----í˜„ì¬ physical memory------ \n");
 		for (int k = 0; k < 80; k++) {
 			printf("frame number : %3d       |  ", k);
 			fprintf(fp,"frame number : %3d       |  ", k);
@@ -467,11 +468,11 @@ int _tmain(int argc, TCHAR* argv[]) {
 			}
 
 			if (physical_memory_process_and_LRU[k][0] >= 0) {
-				printf("|   P%dÀÌ(°¡) ¼ÒÀ¯Áß  | ", physical_memory_process_and_LRU[k][0]);
-				printf(" ÇöÀç %2d ¸¸Å­ ¿À·¡µÊ ", physical_memory_process_and_LRU[k][1]);
+				printf("|   P%dì´(ê°€) ì†Œìœ ì¤‘  | ", physical_memory_process_and_LRU[k][0]);
+				printf(" í˜„ì¬ %2d ë§Œí¼ ì˜¤ë˜ë¨ ", physical_memory_process_and_LRU[k][1]);
 				printf("\n");
-				fprintf(fp,"|   P%dÀÌ(°¡) ¼ÒÀ¯Áß  | ", physical_memory_process_and_LRU[k][0]);
-				fprintf(fp," ÇöÀç %2d ¸¸Å­ ¿À·¡µÊ ", physical_memory_process_and_LRU[k][1]);
+				fprintf(fp,"|   P%dì´(ê°€) ì†Œìœ ì¤‘  | ", physical_memory_process_and_LRU[k][0]);
+				fprintf(fp," í˜„ì¬ %2d ë§Œí¼ ì˜¤ë˜ë¨ ", physical_memory_process_and_LRU[k][1]);
 				fprintf(fp,"\n");
 			}
 			else {
@@ -496,9 +497,9 @@ int _tmain(int argc, TCHAR* argv[]) {
 	CloseHandle(hReadPipe);
 	CloseHandle(hWritePipe);
 
-	for (int i = 0; i < sizeof(p) / sizeof(struct PCB *); i++)    // ¿ä¼Ò °³¼ö¸¸Å­ ¹İº¹
+	for (int i = 0; i < sizeof(p) / sizeof(struct PCB *); i++)    // ìš”ì†Œ ê°œìˆ˜ë§Œí¼ ë°˜ë³µ
 	{
-		free(p[i]);    // °¢ ¿ä¼ÒÀÇ µ¿Àû ¸Ş¸ğ¸® ÇØÁ¦
+		free(p[i]);    // ê° ìš”ì†Œì˜ ë™ì  ë©”ëª¨ë¦¬ í•´ì œ
 	}
 
 	Sleep(5000);
